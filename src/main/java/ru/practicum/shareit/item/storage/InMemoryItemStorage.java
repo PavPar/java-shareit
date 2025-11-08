@@ -2,10 +2,12 @@ package ru.practicum.shareit.item.storage;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component("inMemoryItemStorage")
@@ -43,8 +45,8 @@ public class InMemoryItemStorage implements ItemStorage {
 
         return storage.values().stream()
                 .filter(i -> i.isAvailable()
-                                && (i.getDescription().toLowerCase().contains(query.toLowerCase())
-                                || i.getName().toLowerCase().contains(query.toLowerCase()))
+                        && (i.getDescription().toLowerCase().contains(query.toLowerCase())
+                        || i.getName().toLowerCase().contains(query.toLowerCase()))
                 )
                 .collect(Collectors.toList());
     }

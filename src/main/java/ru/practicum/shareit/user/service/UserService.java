@@ -22,30 +22,30 @@ public class UserService {
         this.storage = storage;
     }
 
-    public UserDto add(UserDto dto){
+    public UserDto add(UserDto dto) {
         Optional<User> addedUser = storage.add(UserMapper.toEntity(dto));
-        if(addedUser.isEmpty()){
+        if (addedUser.isEmpty()) {
             throw new InternalServerException("Failed to add user");
         }
         return UserMapper.toDto(addedUser.get());
     }
 
-    public Collection<UserDto> getAll(){
+    public Collection<UserDto> getAll() {
         return storage.getAll().stream()
                 .map(UserMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    public UserDto getOne(long id){
-        return UserMapper.toDto(storage.getOne(id).orElseThrow(()->new NotFoundException("no user")));
+    public UserDto getOne(long id) {
+        return UserMapper.toDto(storage.getOne(id).orElseThrow(() -> new NotFoundException("no user")));
     }
 
-    public UserDto update(long id, UserUpdateDto dto){
-        User updatedUser = storage.update(id,dto);
+    public UserDto update(long id, UserUpdateDto dto) {
+        User updatedUser = storage.update(id, dto);
         return UserMapper.toDto(updatedUser);
     }
 
-    public void remove(long id){
+    public void remove(long id) {
         storage.deleteOne(id);
     }
 }

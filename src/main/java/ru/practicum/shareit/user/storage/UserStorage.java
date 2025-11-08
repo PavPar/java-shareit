@@ -8,8 +8,12 @@ import java.util.Optional;
 
 public interface UserStorage {
     public Collection<User> getAll();
+
     public Optional<User> getOne(long id);
+
     public void deleteOne(long id);
+
     public User update(long id, UserUpdateDto user);
+
     public Optional<User> add(User user);
 }

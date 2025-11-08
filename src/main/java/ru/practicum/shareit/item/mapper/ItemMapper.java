@@ -42,15 +42,15 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item mapToItem(ItemUpdateDto dto, Item item){
+    public static Item mapToItem(ItemUpdateDto dto, Item item) {
         Item.ItemBuilder builder = item.toBuilder();
-        if(!Objects.isNull(dto.getName())){
+        if (!Objects.isNull(dto.getName())) {
             builder.name(dto.getName());
         }
-        if(!Objects.isNull(dto.getDescription())){
+        if (!Objects.isNull(dto.getDescription())) {
             builder.description(dto.getDescription());
         }
-        if(!Objects.isNull(dto.isAvailable())){
+        if (!Objects.isNull(dto.isAvailable())) {
             builder.available(dto.isAvailable());
         }
         return builder.build();

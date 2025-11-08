@@ -2,16 +2,12 @@ package ru.practicum.shareit.user;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.InternalServerException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * TODO Sprint add-controllers.
@@ -39,11 +35,11 @@ public class UserController {
 
     @PatchMapping("{id}")
     public UserDto update(@PathVariable long id, @Valid @RequestBody UserUpdateDto dto) {
-        return service.update(id,dto);
+        return service.update(id, dto);
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable long id){
-      service.remove(id);
+    public void delete(@PathVariable long id) {
+        service.remove(id);
     }
 }

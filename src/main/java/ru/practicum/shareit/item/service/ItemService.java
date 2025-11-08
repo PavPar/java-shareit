@@ -57,7 +57,7 @@ public class ItemService {
     }
 
     public Collection<ItemDto> search(String query) {
-        if(query.isBlank()){
+        if (query.isBlank()) {
             return List.of();
         }
         return itemStorage.search(query)
