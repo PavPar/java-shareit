@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.app.Constants;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
@@ -17,7 +18,7 @@ public class ItemController {
     ItemService service;
 
     @GetMapping
-    public Collection<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public Collection<ItemDto> getAll(@RequestHeader(Constants.HeaderUserIdField) Long ownerId) {
         return service.getAll(ownerId);
     }
 
@@ -32,12 +33,12 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long ownerId, @Valid @RequestBody ItemCreateDto dto) {
+    public ItemDto add(@RequestHeader(Constants.HeaderUserIdField) Long ownerId, @Valid @RequestBody ItemCreateDto dto) {
         return service.add(ownerId, dto);
     }
 
     @PatchMapping("{id}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable long id, @Valid @RequestBody ItemUpdateDto dto) {
+    public ItemDto update(@RequestHeader(Constants.HeaderUserIdField) Long ownerId, @PathVariable long id, @Valid @RequestBody ItemUpdateDto dto) {
         return service.update(ownerId, id, dto);
     }
 }
