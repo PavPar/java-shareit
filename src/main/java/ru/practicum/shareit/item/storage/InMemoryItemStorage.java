@@ -21,7 +21,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Collection<Item> getAll(long id) {
-        return storage.values().stream().filter(i -> i.getOwner() == id).collect(Collectors.toList());
+        return storage.values().stream().filter(i -> i.getOwnerId() == id).collect(Collectors.toList());
     }
 
     @Override

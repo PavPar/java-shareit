@@ -5,11 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UniqueValueConflictException;
-import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.exception.InternalServerException;
+import ru.practicum.shareit.exception.*;
 
 import java.util.Map;
 
@@ -37,5 +33,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleUniqueConflict(final UniqueValueConflictException e) {
         return Map.of(HttpStatus.CONFLICT.toString(), e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleUniqueConflict(final ForbiddenException e) {
+        return Map.of(HttpStatus.FORBIDDEN.toString(), e.getMessage());
     }
 }
