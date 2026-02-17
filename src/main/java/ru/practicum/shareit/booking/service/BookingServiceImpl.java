@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingDto changeApprovedStatusTo(Long ownerId, Long bookingId, Boolean approved) {
-        Booking booking = repository.findById(bookingId).orElseThrow(() -> new NotFoundException("no booking"));
+        Booking booking = repository.findByIdWithItem(bookingId).orElseThrow(() -> new NotFoundException("no booking"));
         Item item = booking.getItem();
 
         if (!item.getOwnerId().equals(ownerId)) {
@@ -57,13 +57,11 @@ public class BookingServiceImpl implements BookingService {
 
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
-            item.setAvailable(false);
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
 
-        itemRepository.save(item);
-        return BookingMapper.toDto(repository.save(booking));
+        return BookingMapper.toDto(booking);
     }
 
     @Override

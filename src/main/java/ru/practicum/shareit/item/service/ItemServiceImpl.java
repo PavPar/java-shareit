@@ -57,9 +57,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto getOne(long id) {
+    public ItemDto getOne(Long ownerId, long id) {
         Item item = repository.findById(id).orElseThrow(() -> new NotFoundException("no item"));
-        return this.getItemDtoWithCommentsAndBookings(item);
+        if (Objects.equals(item.getOwnerId(), ownerId)) {
+            return this.getItemDtoWithCommentsAndBookings(item);
+        }
+        return this.getItemDtoWithComments(item);
     }
 
     @Override
@@ -127,10 +130,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemDto getItemDtoWithCommentsAndBookings(Item item) {
+        LocalDateTime currentTime = LocalDateTime.now();
         return ItemMapper.toDto(item,
                 commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId()),
-                bookingRepository.findLastBooking(item.getId(), LocalDateTime.now()).orElse(null),
-                bookingRepository.findNextBooking(item.getId(), LocalDateTime.now()).orElse(null)
+                bookingRepository.findLastBooking(item.getId(), currentTime).orElse(null),
+                bookingRepository.findNextBooking(item.getId(), currentTime).orElse(null)
         );
     }
 

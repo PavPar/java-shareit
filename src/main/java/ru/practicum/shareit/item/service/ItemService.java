@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface ItemService {
     Collection<ItemDto> getAll(Long ownerId);
 
-    ItemDto getOne(long id);
+    ItemDto getOne(Long ownerId, long id);
 
     ItemDto add(Long ownerId, ItemCreateDto dto);
 

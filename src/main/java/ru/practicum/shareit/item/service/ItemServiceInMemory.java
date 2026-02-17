@@ -33,7 +33,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
 
-    public ItemDto getOne(long id) {
+    public ItemDto getOne(Long ownerId, long id) {
         return ItemMapper.toDto(
                 itemStorage.getOne(id).orElseThrow(() -> new NotFoundException("no item"))
         );

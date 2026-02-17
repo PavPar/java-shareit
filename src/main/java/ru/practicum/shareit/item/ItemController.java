@@ -24,8 +24,8 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public ItemDto getOne(@PathVariable long id) {
-        return service.getOne(id);
+    public ItemDto getOne(@RequestHeader(Constants.HeaderUserIdField) Long ownerId, @PathVariable long id) {
+        return service.getOne(ownerId, id);
     }
 
     @GetMapping("search")
