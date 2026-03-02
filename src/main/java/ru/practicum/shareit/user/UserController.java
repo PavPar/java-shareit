@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
@@ -14,9 +14,12 @@ import java.util.Collection;
  */
 @RestController
 @RequestMapping(path = "/users")
-@AllArgsConstructor
 public class UserController {
     UserService service;
+
+    public UserController(@Qualifier("userServiceImpl") UserService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public Collection<UserDto> getAll() {
