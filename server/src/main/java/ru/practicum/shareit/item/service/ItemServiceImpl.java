@@ -89,8 +89,8 @@ public class ItemServiceImpl implements ItemService {
         if (!Objects.isNull(dto.getDescription())) {
             existingItem.setDescription(dto.getDescription());
         }
-        if (!Objects.isNull(dto.isAvailable())) {
-            existingItem.setAvailable(dto.isAvailable());
+        if (!Objects.isNull(dto.getAvailable())) {
+            existingItem.setAvailable(dto.getAvailable());
         }
 
         return ItemMapper.toDto(existingItem);

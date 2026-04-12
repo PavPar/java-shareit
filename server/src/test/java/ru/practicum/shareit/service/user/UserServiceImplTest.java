@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.service.user;
 
 
 import jakarta.persistence.EntityManager;
@@ -10,12 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.UniqueValueConflictException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.Collection;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -183,6 +188,110 @@ class UserServiceImplTest {
         User actualUserFromDB = getUserFromDB(userDto.getEmail(), userDto.getName());
         assertThat(actualUserFromDB).isNull();
 
+    }
+
+    @Test
+    void shouldGetUserById() {
+        UserDto userDto = UserDto.builder()
+                .email("test-email@test.com")
+                .name("test user")
+                .build();
+
+        UserDto created = userService.add(userDto);
+        UserDto found = userService.getOne(created.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(created.getId());
+        assertThat(found.getEmail()).isEqualTo(userDto.getEmail());
+        assertThat(found.getName()).isEqualTo(userDto.getName());
+    }
+
+    @Test
+    void getUserById_WhenUserNotFound_ShouldThrowException() {
+        assertThrows(RuntimeException.class, () -> {
+            userService.getOne(999L);
+        });
+    }
+
+    @Test
+    void shouldGetAllUsers() {
+        UserDto user1 = UserDto.builder()
+                .email("user1@mail.com")
+                .name("user 1")
+                .build();
+        UserDto user2 = UserDto.builder()
+                .email("user2@mail.com")
+                .name("user 2")
+                .build();
+
+        userService.add(user1);
+        userService.add(user2);
+
+        Collection<UserDto> users = userService.getAll();
+
+        assertThat(users).isNotNull();
+        assertThat(users.size()).isGreaterThanOrEqualTo(2);
+    }
+
+    @Test
+    void updateUser_WhenUserNotFound_ShouldThrowException() {
+        UserUpdateDto updateDto = UserUpdateDto.builder()
+                .name("new user name")
+                .build();
+
+        assertThrows(NotFoundException.class, () -> {
+            userService.update(999L, updateDto);
+        });
+    }
+
+    @Test
+    void deleteUser_WhenUserNotFound_ShouldThrowException() {
+        assertThrows(NotFoundException.class, () -> {
+            userService.remove(999L);
+        });
+    }
+
+    @Test
+    void addUser_WithDuplicateEmail_ShouldThrowException() {
+        UserDto user1 = UserDto.builder()
+                .email("user1@mail.com")
+                .name("user 1")
+                .build();
+
+        UserDto user2 = UserDto.builder()
+                .email(user1.getEmail())
+                .name("user 2")
+                .build();
+
+        userService.add(user1);
+
+        assertThrows(UniqueValueConflictException.class, () -> {
+            userService.add(user2);
+        });
+    }
+
+    @Test
+    void updateUser_WithDuplicateEmail_ShouldThrowException() {
+        UserDto user1 = UserDto.builder()
+                .email("user1@mail.com")
+                .name("user 1")
+                .build();
+
+        UserDto user2 = UserDto.builder()
+                .email("user2@mail.com")
+                .name("user 2")
+                .build();
+
+        UserDto userCreated1 = userService.add(user1);
+        UserDto userCreated2 = userService.add(user2);
+
+        UserUpdateDto updateDto = UserUpdateDto.builder()
+                .email(userCreated1.getEmail())
+                .build();
+
+        assertThrows(UniqueValueConflictException.class, () -> {
+            userService.update(userCreated2.getId(), updateDto);
+        });
     }
 
     private User getUserFromDB(String email, String name) {

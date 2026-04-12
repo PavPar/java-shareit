@@ -40,6 +40,9 @@ public class BookingServiceImpl implements BookingService {
         if (!item.isAvailable()) {
             throw new ValidationException("item is not available");
         }
+        if (item.getOwnerId() == user.getId()) {
+            throw new ValidationException("cant book own item");
+        }
         Booking booking = BookingMapper.toEntity(dto, item, user);
         booking.setStatus(BookingStatus.WAITING);
         return BookingMapper.toDto(repository.save(booking));

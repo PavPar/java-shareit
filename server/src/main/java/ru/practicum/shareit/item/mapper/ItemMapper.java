@@ -62,7 +62,7 @@ public class ItemMapper {
         return Item.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .available(dto.isAvailable())
+                .available(dto.getAvailable())
                 .build();
     }
 
@@ -83,8 +83,8 @@ public class ItemMapper {
         if (!Objects.isNull(dto.getDescription())) {
             builder.description(dto.getDescription());
         }
-        if (!Objects.isNull(dto.isAvailable())) {
-            builder.available(dto.isAvailable());
+        if (!Objects.isNull(dto.getAvailable())) {
+            builder.available(dto.getAvailable());
         }
         return builder.build();
     }

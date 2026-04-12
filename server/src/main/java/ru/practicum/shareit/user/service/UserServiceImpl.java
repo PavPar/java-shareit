@@ -27,6 +27,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto add(UserDto dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new UniqueValueConflictException("email not unique");
+        }
+
         User addedUser = userRepository.save(UserMapper.toEntity(dto));
         return UserMapper.toDto(addedUser);
     }

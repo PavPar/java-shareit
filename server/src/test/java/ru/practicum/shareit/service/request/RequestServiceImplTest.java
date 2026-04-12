@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.service.request;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -20,6 +21,8 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -112,10 +115,119 @@ public class RequestServiceImplTest {
         }
     }
 
+    @Test
+    void shouldGetRequestById() {
+        UserDto user = createTestUser();
+        ItemRequestCreateDto createDto = ItemRequestCreateDto.builder()
+                .description("request test 1")
+                .build();
+        ItemRequestDto created = itemRequestService.save(user.getId(), createDto);
+
+        ItemRequestDto found = itemRequestService.getById(created.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(created.getId());
+        assertThat(found.getDescription()).isEqualTo(createDto.getDescription());
+    }
+
+    @Test
+    void getRequestById_WhenRequestNotFound_ShouldThrowException() {
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.getById(999L);
+        });
+    }
+
+    @Test
+    void shouldGetUserRequests() {
+        UserDto user = createTestUser();
+
+        ItemRequestCreateDto request1 = ItemRequestCreateDto.builder()
+                .description("request test 1")
+                .build();
+        ItemRequestCreateDto request2 = ItemRequestCreateDto.builder()
+                .description("request test 2")
+                .build();
+
+        itemRequestService.save(user.getId(), request1);
+        itemRequestService.save(user.getId(), request2);
+
+        List<ItemRequestDto> requests = itemRequestService.getAllFromUser(user.getId());
+
+        assertThat(requests).isNotNull();
+        assertThat(requests.size()).isGreaterThanOrEqualTo(2);
+    }
+
+    @Test
+    void shouldGetAllRequests() {
+        UserDto user1 = createTestUser();
+        UserDto user2 = createTestUser();
+
+        ItemRequestCreateDto request1 = ItemRequestCreateDto.builder()
+                .description("request test 1")
+                .build();
+        ItemRequestCreateDto request2 = ItemRequestCreateDto.builder()
+                .description("request test 2")
+                .build();
+
+        itemRequestService.save(user1.getId(), request1);
+        itemRequestService.save(user2.getId(), request2);
+
+        List<ItemRequestDto> requests = itemRequestService.getAll();
+
+        assertThat(requests).isNotNull();
+        assertThat(requests.size()).isGreaterThanOrEqualTo(2);
+    }
+
+    @Test
+    void createRequest_WhenUserNotFound_ShouldThrowException() {
+        ItemRequestCreateDto createDto = ItemRequestCreateDto.builder()
+                .description("request test 1")
+                .build();
+
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.save(999L, createDto);
+        });
+    }
+
+    @Test
+    void getUserRequests_WhenUserHasNoRequests_ShouldReturnEmptyList() {
+        UserDto user = createTestUser();
+
+        List<ItemRequestDto> requests = itemRequestService.getAllFromUser(user.getId());
+
+        assertThat(requests).isNotNull();
+        assertThat(requests.size()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldGetRequestWithItems() throws InterruptedException {
+        UserDto user = createTestUser();
+
+        ItemRequestCreateDto requestDto = ItemRequestCreateDto.builder()
+                .description("request test 1")
+                .build();
+        ItemRequestDto request = itemRequestService.save(user.getId(), requestDto);
+
+        ItemCreateDto itemCreateDto = ItemCreateDto.builder()
+                .name("item")
+                .description("item desc")
+                .available(true)
+                .requestId(request.getId())
+                .build();
+        itemService.add(user.getId(), itemCreateDto);
+
+        ItemRequestDto found = itemRequestService.getById(request.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getItems()).isNotNull();
+    }
+
+    private static long userCounter = 0l;
+
     private UserDto createTestUser() {
         UserDto userDto = UserDto.builder()
-                .email("test@example.com")
-                .name("Test")
+                .email("test" + userCounter++ + "@example.com")
+                .name("test")
                 .build();
 
         return userService.add(userDto);
