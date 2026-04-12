@@ -165,6 +165,7 @@ public class ItemControllerTest {
         ItemCreateDto itemA = ItemCreateDto.builder()
                 .name("Test")
                 .description("Test Desc")
+                .available(true)
                 .build();
         ObjectMapper mapper = createMapper();
         String updatedJson = mapper.writeValueAsString(itemA);
