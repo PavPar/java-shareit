@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.nio.charset.StandardCharsets;
@@ -93,11 +95,11 @@ public class RequestControllerTest {
 
     @Test
     void create_WhenNoUserIdHeader_ShouldReturnBadRequest() throws Exception {
-        String jsonRequest = """
-                {
-                    "description": "Test A"
-                }
-                """;
+        ItemRequestCreateDto dto = ItemRequestCreateDto.builder()
+                .description("Test A")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(dto);
 
         mockMvc.perform(post("/requests")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -109,11 +111,11 @@ public class RequestControllerTest {
 
     @Test
     void create_WhenEmptyDescription_ShouldReturnBadRequest() throws Exception {
-        String jsonRequest = """
-                {
-                    "description": ""
-                }
-                """;
+        ItemRequestCreateDto dto = ItemRequestCreateDto.builder()
+                .description("")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(dto);
 
         mockMvc.perform(post("/requests")
                         .contentType(MediaType.APPLICATION_JSON)

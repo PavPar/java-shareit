@@ -1,5 +1,8 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import ru.practicum.shareit.item.dto.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -158,16 +162,12 @@ public class ItemControllerTest {
 
     @Test
     void add_ShouldWorkIfCorrectly() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "Test",
-                    "description": "Test Desc"
-                }
-                """;
         ItemCreateDto itemA = ItemCreateDto.builder()
                 .name("Test")
                 .description("Test Desc")
                 .build();
+        ObjectMapper mapper = createMapper();
+        String updatedJson = mapper.writeValueAsString(itemA);
 
         ResponseEntity<Object> responseEntity = ResponseEntity.ok(itemA);
 
@@ -179,7 +179,7 @@ public class ItemControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))
+                        .content(updatedJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(itemA.getName()))
                 .andExpect(jsonPath("$.description").value(itemA.getDescription()));
@@ -189,12 +189,12 @@ public class ItemControllerTest {
 
     @Test
     void add_WhenNOHeader_ShouldSend400() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "Test",
-                    "description": "Test Desc"
-                }
-                """;
+        ItemCreateDto itemA = ItemCreateDto.builder()
+                .name("Test")
+                .description("Test Desc")
+                .build();
+        ObjectMapper mapper = createMapper();
+        String jsonRequest = mapper.writeValueAsString(itemA);
 
         ResponseEntity<Object> responseEntity = ResponseEntity.badRequest().build();
 
@@ -213,19 +213,16 @@ public class ItemControllerTest {
 
     @Test
     void update_WhenItemExists_ShouldWork() throws Exception {
-        String body = """
-                {
-                    "name": "Test",
-                    "description": "Test Desc"
-                }
-                """;
-        Long itemId = 1L;
-        Long ownerId = 1L;
-
         ItemCreateDto itemA = ItemCreateDto.builder()
                 .name("Test")
                 .description("Test Desc")
                 .build();
+        ObjectMapper mapper = createMapper();
+        String body = mapper.writeValueAsString(itemA);
+
+
+        Long itemId = 1L;
+        Long ownerId = 1L;
 
 
         when(client.update(eq(ownerId), eq(itemId), any(ItemUpdateDto.class)))
@@ -244,12 +241,13 @@ public class ItemControllerTest {
 
     @Test
     void update_WhenNOHeader_ShouldSend400() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "Test",
-                    "description": "Test Desc"
-                }
-                """;
+        ItemCreateDto itemA = ItemCreateDto.builder()
+                .name("Test")
+                .description("Test Desc")
+                .build();
+        ObjectMapper mapper = createMapper();
+        String jsonRequest = mapper.writeValueAsString(itemA);
+
 
         ResponseEntity<Object> responseEntity = ResponseEntity.badRequest().build();
         Long itemId = 1L;
@@ -270,11 +268,11 @@ public class ItemControllerTest {
     void addComment_WithValidData_ShouldCreateComment() throws Exception {
         Long userId = 1L;
 
-        String commentJson = """
-                {
-                    "text": "Test comment"
-                }
-                """;
+        CommentDto commentDto = CommentDto.builder()
+                .text("Test comment")
+                .build();
+        ObjectMapper mapper = createMapper();
+        String jsonRequest = mapper.writeValueAsString(commentDto);
 
         CommentDto dto = CommentDto.builder()
                 .id(1L)
@@ -289,7 +287,7 @@ public class ItemControllerTest {
         mockMvc.perform(post("/items/{id}/comment", dto.getId())
                         .header("X-Sharer-User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(commentJson))
+                        .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dto.getId()))
                 .andExpect(jsonPath("$.text").value(dto.getText()))
@@ -302,12 +300,11 @@ public class ItemControllerTest {
     @Test
     void addComment_WhenNoHeader_ShouldReturn400() throws Exception {
         Long userId = 1L;
-
-        String commentJson = """
-                {
-                    "text": "Test comment"
-                }
-                """;
+        CommentDto commentDto = CommentDto.builder()
+                .text("Test comment")
+                .build();
+        ObjectMapper mapper = createMapper();
+        String commentJson = mapper.writeValueAsString(commentDto);
 
         CommentDto dto = CommentDto.builder()
                 .id(1L)
@@ -326,4 +323,15 @@ public class ItemControllerTest {
         verify(client, never()).addComment(any(), any(), Mockito.any());
     }
 
+    private static ObjectMapper createMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+
+        javaTimeModule.addSerializer(LocalDateTime.class,
+                new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
+
+        mapper.registerModule(javaTimeModule);
+        return mapper;
+    }
 }

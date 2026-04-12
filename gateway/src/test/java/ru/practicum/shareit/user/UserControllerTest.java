@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,13 +85,13 @@ public class UserControllerTest {
 
     @Test
     void add_WhenEmptyName_ShouldReturnBadRequest() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "",
-                    "email": "test@email.com",
-                }
-                """;
-
+        UserDto updatedUser = UserDto.builder()
+                .id(1L)
+                .name("")
+                .email("test@mail.com")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(updatedUser);
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
@@ -101,12 +102,13 @@ public class UserControllerTest {
 
     @Test
     void add_WhenEmptyEmail_ShouldReturnBadRequest() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "test a",
-                    "email": ""
-                }
-                """;
+        UserDto updatedUser = UserDto.builder()
+                .id(1L)
+                .name("test a")
+                .email("")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(updatedUser);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -118,12 +120,13 @@ public class UserControllerTest {
 
     @Test
     void add_WhenIncorrectEmail_ShouldReturnBadRequest() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "test a",
-                    "email": "test"
-                }
-                """;
+        UserDto updatedUser = UserDto.builder()
+                .id(1L)
+                .name("test a")
+                .email("test")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(updatedUser);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,12 +138,14 @@ public class UserControllerTest {
 
     @Test
     void add_WhenOk_ShouldReturnOk() throws Exception {
-        String jsonRequest = """
-                {
-                    "name": "test a",
-                    "email": "test@email.com"
-                }
-                """;
+        UserDto updatedUser = UserDto.builder()
+                .id(1L)
+                .name("test a")
+                .email("test@mail.com")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonRequest = mapper.writeValueAsString(updatedUser);
+
         UserDto itemA = UserDto.builder().id(1L).email("test@email.com").name("test a").build();
 
         ResponseEntity<Object> responseEntity = ResponseEntity.ok(itemA);
@@ -180,18 +185,13 @@ public class UserControllerTest {
 
     @Test
     void update_WhenUserExists_ShouldReturnUpdatedUser() throws Exception {
-        String body = """
-                {
-                    "name": "Test A",
-                    "email": "test@mail.com"
-                }
-                """;
-
         UserDto updatedUser = UserDto.builder()
                 .id(1L)
                 .name("Test A")
                 .email("test@mail.com")
                 .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(updatedUser);
 
         when(client.update(eq(updatedUser.getId()), any(UserUpdateDto.class)))
                 .thenReturn(ResponseEntity.ok(updatedUser));
@@ -211,11 +211,11 @@ public class UserControllerTest {
     @Test
     void update_WhenUserDoesNotExist_ShouldReturn404() throws Exception {
         Long nonExistentId = 999L;
-        String updateJson = """
-                {
-                    "name": "Test A"
-                }
-                """;
+        UserUpdateDto updatedUser = UserUpdateDto.builder()
+                .name("Test A")
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String updateJson = mapper.writeValueAsString(updatedUser);
 
         when(client.update(eq(nonExistentId), any(UserUpdateDto.class)))
                 .thenReturn(ResponseEntity.notFound().build());

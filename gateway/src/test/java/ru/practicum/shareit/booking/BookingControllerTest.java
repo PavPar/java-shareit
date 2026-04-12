@@ -1,5 +1,8 @@
 package ru.practicum.shareit.booking;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,6 +18,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,12 +40,16 @@ public class BookingControllerTest {
     @Test
     void getAll_WithoutState_ShouldReturnAllBookings() throws Exception {
         Long ownerId = 1L;
-        String expectedJson = """
-                [
-                    { "id": 1, "status": "WAITING" },
-                    { "id": 2, "status": "APPROVED" }
-                ]
-                """;
+        BookingDto dto1 = BookingDto.builder()
+                .id(1L)
+                .status(BookingStatus.WAITING)
+                .build();
+        BookingDto dto2 = BookingDto.builder()
+                .id(2L)
+                .status(BookingStatus.APPROVED)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String expectedJson = mapper.writeValueAsString(List.of(dto1, dto2));
 
         when(client.getAll(eq(ownerId), isNull()))
                 .thenReturn(ResponseEntity.ok(expectedJson));
@@ -56,11 +65,12 @@ public class BookingControllerTest {
     @Test
     void getAll_WithWaitingState_ShouldReturnWaitingBookings() throws Exception {
         Long ownerId = 1L;
-        String expectedJson = """
-                [
-                    { "id": 1, "status": "WAITING" }
-                ]
-                """;
+        BookingDto dto = BookingDto.builder()
+                .id(1L)
+                .status(BookingStatus.WAITING)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String expectedJson = mapper.writeValueAsString(dto);
 
         when(client.getAll(eq(ownerId), eq(BookingGetAllState.WAITING)))
                 .thenReturn(ResponseEntity.ok(expectedJson));
@@ -77,11 +87,12 @@ public class BookingControllerTest {
     @Test
     void getAll_WithCurrentState_ShouldReturnBookings() throws Exception {
         Long ownerId = 1L;
-        String expectedJson = """
-                [
-                    {"id": 1, "status": "CURRENT"}
-                ]
-                """;
+        BookingDto dto = BookingDto.builder()
+                .id(1L)
+                .status(BookingStatus.WAITING)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String expectedJson = mapper.writeValueAsString(dto);
 
         when(client.getAll(eq(ownerId), eq(BookingGetAllState.CURRENT)))
                 .thenReturn(ResponseEntity.ok(expectedJson));
@@ -98,11 +109,12 @@ public class BookingControllerTest {
     @Test
     void getAll_WithPastState_ShouldReturnBookings() throws Exception {
         Long ownerId = 1L;
-        String expectedJson = """
-                [
-                    {"id": 1, "status": "PAST"}
-                ]
-                """;
+        BookingDto dto = BookingDto.builder()
+                .id(1L)
+                .status(BookingStatus.WAITING)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String expectedJson = mapper.writeValueAsString(dto);
 
         when(client.getAll(eq(ownerId), eq(BookingGetAllState.PAST)))
                 .thenReturn(ResponseEntity.ok(expectedJson));
@@ -119,11 +131,12 @@ public class BookingControllerTest {
     @Test
     void getAll_WithFutureState_ShouldReturnBookings() throws Exception {
         Long ownerId = 1L;
-        String expectedJson = """
-                [
-                    {"id": 1, "status": "FUTURE"}
-                ]
-                """;
+        BookingDto dto = BookingDto.builder()
+                .id(1L)
+                .status(BookingStatus.WAITING)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String expectedJson = mapper.writeValueAsString(dto);
 
         when(client.getAll(eq(ownerId), eq(BookingGetAllState.FUTURE)))
                 .thenReturn(ResponseEntity.ok(expectedJson));
@@ -231,13 +244,16 @@ public class BookingControllerTest {
     void getAllByOwner_WithoutState_ShouldReturnAllOwnerBookings() throws Exception {
         UserDto owner = UserDto.builder().id(1L).build();
 
-        String expectedJson = """
-                [
-                    {"id": 1, "status": "WAITING"},
-                    {"id": 2, "status": "WAITING"},
-                    {"id": 3, "status": "WAITING"}
-                ]
-                """;
+        BookingDto dto1 = BookingDto.builder()
+                .id(1L)
+                .status(BookingStatus.WAITING)
+                .build();
+        BookingDto dto2 = BookingDto.builder()
+                .id(2L)
+                .status(BookingStatus.APPROVED)
+                .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String expectedJson = mapper.writeValueAsString(List.of(dto1, dto2));
 
         when(client.getAllByOwner(eq(owner.getId()), isNull()))
                 .thenReturn(ResponseEntity.ok(expectedJson));
@@ -291,13 +307,13 @@ public class BookingControllerTest {
     @Test
     void add_WithValidData_ShouldCreateBooking() throws Exception {
         Long ownerId = 1L;
-        String createJson = """
-                {
-                      "itemId": 199,
-                      "start": "2026-04-13T08:45:25",
-                      "end": "2026-04-15T08:45:25"
-                  }
-                """;
+        BookingCreateDto dto = BookingCreateDto.builder()
+                .itemId(199L)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusMinutes(1))
+                .build();
+        ObjectMapper mapper = createMapper();
+        String createJson = mapper.writeValueAsString(dto);
 
         BookingDto bookingDto = BookingDto.builder()
                 .id(10)
@@ -323,13 +339,13 @@ public class BookingControllerTest {
     @Test
     void add_WhenNoHeader_ShouldReturnBadRequest() throws Exception {
         Long ownerId = 1L;
-        String createJson = """
-                {
-                    "itemId": 1,
-                    "start": "2026-04-05T10:00:00",
-                    "end": "2026-04-05T11:00:00"
-                }
-                """;
+        BookingCreateDto dto = BookingCreateDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusMinutes(1))
+                .build();
+        ObjectMapper mapper = createMapper();
+        String createJson = mapper.writeValueAsString(dto);
 
         BookingDto bookingDto = BookingDto.builder()
                 .id(10)
@@ -352,13 +368,13 @@ public class BookingControllerTest {
     @Test
     void add_WithInvalidDates_ShouldReturnBadRequest() throws Exception {
         Long ownerId = 1L;
-        String invalidJson = """
-                {
-                    "itemId": 1,
-                    "start": "2024-06-05T10:00:00",
-                    "end": "2024-06-01T10:00:00"
-                }
-                """;
+        BookingCreateDto dto = BookingCreateDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().minusDays(1))
+                .build();
+        ObjectMapper mapper = createMapper();
+        String invalidJson = mapper.writeValueAsString(dto);
 
         mockMvc.perform(post("/bookings")
                         .header(userHeader, ownerId)
@@ -372,12 +388,13 @@ public class BookingControllerTest {
     @Test
     void add_WithNullStartDate_ShouldReturnBadRequest() throws Exception {
         Long ownerId = 1L;
-        String invalidJson = """
-                {
-                    "itemId": 1,
-                    "end": "2024-06-05T10:00:00"
-                }
-                """;
+        BookingCreateDto dto = BookingCreateDto.builder()
+                .itemId(1L)
+                .end(LocalDateTime.now().minusDays(1))
+                .build();
+        ObjectMapper mapper = createMapper();
+        String invalidJson = mapper.writeValueAsString(dto);
+
 
         mockMvc.perform(post("/bookings")
                         .header(userHeader, ownerId)
@@ -390,13 +407,13 @@ public class BookingControllerTest {
 
     @Test
     void add_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
-        String createJson = """
-                {
-                    "itemId": 1,
-                    "start": "2024-06-01T10:00:00",
-                    "end": "2024-06-05T10:00:00"
-                }
-                """;
+        BookingCreateDto dto = BookingCreateDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusMinutes(1))
+                .build();
+        ObjectMapper mapper = createMapper();
+        String createJson = mapper.writeValueAsString(dto);
 
         mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -409,13 +426,13 @@ public class BookingControllerTest {
     @Test
     void add_WhenItemNotAvailable_ShouldReturnBadRequest() throws Exception {
         Long ownerId = 1L;
-        String createJson = """
-                {
-                    "itemId": 1,
-                    "start": "2024-06-01T10:00:00",
-                    "end": "2024-06-05T10:00:00"
-                }
-                """;
+        BookingCreateDto dto = BookingCreateDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusMinutes(1))
+                .build();
+        ObjectMapper mapper = createMapper();
+        String createJson = mapper.writeValueAsString(dto);
 
         when(client.add(eq(ownerId), any(BookingCreateDto.class)))
                 .thenReturn(ResponseEntity.badRequest().body("Item not available"));
@@ -433,12 +450,12 @@ public class BookingControllerTest {
         Long ownerId = 1L;
         Long bookingId = 10L;
         Boolean approved = true;
-        String updatedJson = """
-                {
-                    "id": 10,
-                    "status": "APPROVED"
-                }
-                """;
+        BookingDto dto = BookingDto.builder()
+                .id(bookingId)
+                .status(BookingStatus.APPROVED)
+                .build();
+        ObjectMapper mapper = createMapper();
+        String updatedJson = mapper.writeValueAsString(dto);
 
         when(client.changeApprovedStatusTo(ownerId, bookingId, approved))
                 .thenReturn(ResponseEntity.ok(updatedJson));
@@ -458,12 +475,12 @@ public class BookingControllerTest {
         Long ownerId = 1L;
         Long bookingId = 10L;
         Boolean approved = false;
-        String updatedJson = """
-                {
-                    "id": 10,
-                    "status": "REJECTED"
-                }
-                """;
+        BookingDto dto = BookingDto.builder()
+                .id(bookingId)
+                .status(BookingStatus.REJECTED)
+                .build();
+        ObjectMapper mapper = createMapper();
+        String updatedJson = mapper.writeValueAsString(dto);
 
         when(client.changeApprovedStatusTo(ownerId, bookingId, approved))
                 .thenReturn(ResponseEntity.ok(updatedJson));
@@ -562,5 +579,17 @@ public class BookingControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(client).changeApprovedStatusTo(ownerId, nonExistentId, approved);
+    }
+
+    private static ObjectMapper createMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+
+        javaTimeModule.addSerializer(LocalDateTime.class,
+                new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
+
+        mapper.registerModule(javaTimeModule);
+        return mapper;
     }
 }
