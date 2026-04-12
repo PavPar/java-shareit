@@ -61,7 +61,6 @@ class UserServiceImplTest {
                 .email("test@example.com")
                 .name("Test")
                 .build();
-
         UserDto addedUser = userService.add(userDto);
 
         assertThat(addedUser.getId()).isNotNull();
