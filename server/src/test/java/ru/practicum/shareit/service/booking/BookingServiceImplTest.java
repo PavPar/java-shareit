@@ -45,7 +45,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "spring.datasource.hikari.maximum-pool-size=5"
 })
 public class BookingServiceImplTest {
-    private static long userCounter = 0l;
+    private static long userCounter = 0L;
     @Autowired
     @Qualifier("itemServiceImpl")
     private ItemService itemService;

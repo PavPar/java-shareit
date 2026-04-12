@@ -222,7 +222,7 @@ public class RequestServiceImplTest {
         assertThat(found.getItems()).isNotNull();
     }
 
-    private static long userCounter = 0l;
+    private static long userCounter = 0L;
 
     private UserDto createTestUser() {
         UserDto userDto = UserDto.builder()

@@ -335,7 +335,7 @@ public class ItemMapperTest {
                 .build();
     }
 
-    private static long userCounter = 0l;
+    private static long userCounter = 0L;
 
     private User createTestUser() {
         return User.builder()
