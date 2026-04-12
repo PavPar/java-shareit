@@ -69,8 +69,8 @@ public class ItemMapper {
     public static Item toEntity(ItemCreateDto dto) {
         return Item.builder()
                 .name(dto.getName())
-                .description(dto.getDescription())
-                .available(dto.getAvailable())
+                .description(Objects.requireNonNullElse(dto.getDescription(), ""))
+                .available(Objects.requireNonNullElse(dto.getAvailable(), true))
                 .requestId(dto.getRequestId())
                 .build();
     }

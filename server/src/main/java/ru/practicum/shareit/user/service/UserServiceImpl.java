@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,9 +54,14 @@ public class UserServiceImpl implements UserService {
             throw new UniqueValueConflictException("email not unique");
         }
 
-        existingUser.setEmail(dto.getEmail());
-        existingUser.setName(dto.getName());
+        if (!Objects.isNull(dto.getEmail())) {
+            existingUser.setEmail(dto.getEmail());
+        }
 
+        if (!Objects.isNull(dto.getName())) {
+            existingUser.setName(dto.getName());
+        }
+        
         return UserMapper.toDto(existingUser);
     }
 

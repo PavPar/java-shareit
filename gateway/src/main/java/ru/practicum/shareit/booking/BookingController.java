@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,9 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> add(@RequestHeader(Constants.HeaderUserIdField) Long ownerId, @RequestBody BookingCreateDto dto) {
+    public ResponseEntity<Object> add(
+            @RequestHeader(Constants.HeaderUserIdField) Long ownerId,
+            @Valid @RequestBody BookingCreateDto dto) {
         return bookingClient.add(ownerId, dto);
     }
 
