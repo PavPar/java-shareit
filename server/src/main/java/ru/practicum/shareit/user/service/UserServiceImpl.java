@@ -61,7 +61,6 @@ public class UserServiceImpl implements UserService {
         if (!Objects.isNull(dto.getName())) {
             existingUser.setName(dto.getName());
         }
-        
         return UserMapper.toDto(existingUser);
     }
 
