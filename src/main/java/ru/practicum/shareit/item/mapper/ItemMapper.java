@@ -71,6 +71,7 @@ public class ItemMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .available(dto.getAvailable())
+                .requestId(dto.getRequestId())
                 .build();
     }
 
