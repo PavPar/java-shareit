@@ -56,7 +56,7 @@ public class RequestControllerTest {
 
     @Test
     void getAllFromUser_ShouldReturnItemsIfOk() throws Exception {
-        Long USER_ID = 999L;
+        Long userId = 999L;
         ItemRequestDto itemA = ItemRequestDto.builder().id(1L).description("Test A").build();
         ItemRequestDto itemB = ItemRequestDto.builder().id(2L).description("Test B").build();
 
@@ -67,7 +67,7 @@ public class RequestControllerTest {
         when(client.getAllFromUser(Mockito.anyLong())).thenReturn(responseEntity);
 
         mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", USER_ID)
+                        .header("X-Sharer-User-Id", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -79,7 +79,7 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$[1].id").value(itemB.getId()))
                 .andExpect(jsonPath("$[1].description").value(itemB.getDescription()));
 
-        verify(client).getAllFromUser(USER_ID);
+        verify(client).getAllFromUser(userId);
     }
 
     @Test

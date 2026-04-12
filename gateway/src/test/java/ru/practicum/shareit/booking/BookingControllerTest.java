@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
-    private final String USER_HEADER = "X-Sharer-User-Id";
+    private final String userHeader = "X-Sharer-User-Id";
     @Autowired
     private MockMvc mockMvc;
 
@@ -37,8 +37,8 @@ public class BookingControllerTest {
         Long ownerId = 1L;
         String expectedJson = """
                 [
-                    {"id": 1, "status": "WAITING"},
-                    {"id": 2, "status": "APPROVED"}
+                    { "id": 1, "status": "WAITING" },
+                    { "id": 2, "status": "APPROVED" }
                 ]
                 """;
 
@@ -46,7 +46,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(expectedJson));
 
         mockMvc.perform(get("/bookings")
-                        .header(USER_HEADER, ownerId))
+                        .header(userHeader, ownerId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
 
@@ -58,7 +58,7 @@ public class BookingControllerTest {
         Long ownerId = 1L;
         String expectedJson = """
                 [
-                    {"id": 1, "status": "WAITING"}
+                    { "id": 1, "status": "WAITING" }
                 ]
                 """;
 
@@ -66,7 +66,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(expectedJson));
 
         mockMvc.perform(get("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", BookingGetAllState.WAITING.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
@@ -87,7 +87,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(expectedJson));
 
         mockMvc.perform(get("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", BookingGetAllState.CURRENT.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
@@ -108,7 +108,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(expectedJson));
 
         mockMvc.perform(get("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", BookingGetAllState.PAST.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
@@ -129,7 +129,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(expectedJson));
 
         mockMvc.perform(get("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", BookingGetAllState.FUTURE.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
@@ -142,7 +142,7 @@ public class BookingControllerTest {
         Long ownerId = 1L;
 
         mockMvc.perform(get("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", "UNKNOWN"))
                 .andExpect(status().isBadRequest());
 
@@ -174,7 +174,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(dto));
 
         mockMvc.perform(get("/bookings/{id}", dto.getId())
-                        .header(USER_HEADER, owner.getId()))
+                        .header(userHeader, owner.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dto.getId()))
                 .andExpect(jsonPath("$.status").value(dto.getStatus().toString()));
@@ -199,7 +199,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.notFound().build());
 
         mockMvc.perform(get("/bookings/{id}", dto.getId())
-                        .header(USER_HEADER, owner.getId()))
+                        .header(userHeader, owner.getId()))
                 .andExpect(status().isNotFound());
 
         verify(client, times(1)).getBooking(owner.getId(), dto.getId());
@@ -243,7 +243,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(expectedJson));
 
         mockMvc.perform(get("/bookings/owner")
-                        .header(USER_HEADER, owner.getId()))
+                        .header(userHeader, owner.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
 
@@ -259,7 +259,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok("[]"));
 
         mockMvc.perform(get("/bookings/owner")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", state))
                 .andExpect(status().isOk());
 
@@ -271,7 +271,7 @@ public class BookingControllerTest {
         Long ownerId = 1L;
 
         mockMvc.perform(get("/bookings/owner")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("state", "Unknown"))
                 .andExpect(status().isBadRequest());
 
@@ -310,7 +310,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(bookingDto));
 
         mockMvc.perform(post("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createJson))
                 .andExpect(status().isOk())
@@ -361,7 +361,7 @@ public class BookingControllerTest {
                 """;
 
         mockMvc.perform(post("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest());
@@ -380,7 +380,7 @@ public class BookingControllerTest {
                 """;
 
         mockMvc.perform(post("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest());
@@ -421,7 +421,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.badRequest().body("Item not available"));
 
         mockMvc.perform(post("/bookings")
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createJson))
                 .andExpect(status().isBadRequest());
@@ -444,7 +444,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(updatedJson));
 
         mockMvc.perform(patch("/bookings/{id}", bookingId)
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("approved", String.valueOf(approved)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("APPROVED"));
@@ -469,7 +469,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.ok(updatedJson));
 
         mockMvc.perform(patch("/bookings/{id}", bookingId)
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("approved", String.valueOf(approved)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("REJECTED"));
@@ -487,7 +487,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.status(403).build());
 
         mockMvc.perform(patch("/bookings/{id}", bookingId)
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("approved", String.valueOf(approved)))
                 .andExpect(status().isForbidden());
 
@@ -504,7 +504,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.badRequest().body("Booking already approved"));
 
         mockMvc.perform(patch("/bookings/{id}", bookingId)
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("approved", String.valueOf(approved)))
                 .andExpect(status().isBadRequest());
 
@@ -517,7 +517,7 @@ public class BookingControllerTest {
         Long bookingId = 10L;
 
         mockMvc.perform(patch("/bookings/{id}", bookingId)
-                        .header(USER_HEADER, ownerId))
+                        .header(userHeader, ownerId))
                 .andExpect(status().isBadRequest());
 
         verify(client, never()).changeApprovedStatusTo(anyLong(), anyLong(), anyBoolean());
@@ -529,7 +529,7 @@ public class BookingControllerTest {
         Long bookingId = 10L;
 
         mockMvc.perform(patch("/bookings/{id}", bookingId)
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("approved", "not-a-boolean"))
                 .andExpect(status().isBadRequest());
 
@@ -557,7 +557,7 @@ public class BookingControllerTest {
                 .thenReturn(ResponseEntity.notFound().build());
 
         mockMvc.perform(patch("/bookings/{id}", nonExistentId)
-                        .header(USER_HEADER, ownerId)
+                        .header(userHeader, ownerId)
                         .param("approved", String.valueOf(approved)))
                 .andExpect(status().isNotFound());
 
